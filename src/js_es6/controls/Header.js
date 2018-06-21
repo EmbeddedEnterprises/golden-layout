@@ -25,7 +25,7 @@ export default class Header extends EventEmitter {
     constructor(layoutManager, parent) {
 
         super();
-        
+
         this.layoutManager = layoutManager;
         this.element = $(_template);
 
@@ -139,7 +139,7 @@ export default class Header extends EventEmitter {
                 this.tabs.splice(i, 1);
                 return;
             }
-        }        
+        }
 
         throw new Error('contentItem is not controlled by this header');
     }
@@ -277,20 +277,25 @@ export default class Header extends EventEmitter {
             maximise,
             maximiseButton,
             tabDropdownLabel,
+            headerButtonContent,
             showTabDropdown;
+
+        // extract additional html from the configuration to allow custom animations to occur
+        // on header button clicks, but assume a safe default which does not change default behavior.
+        headerButtonContent = this.layoutManager.config.labels.additionalContent || "";
 
         /**
          * Dropdown to show additional tabs.
          */
         showTabDropdown = fnBind(this._showAdditionalTabsDropdown, this);
         tabDropdownLabel = this.layoutManager.config.labels.tabDropdown;
-        this.tabDropdownButton = new HeaderButton(this, tabDropdownLabel, 'lm_tabdropdown', showTabDropdown);
+        this.tabDropdownButton = new HeaderButton(this, tabDropdownLabel, 'lm_tabdropdown', showTabDropdown, headerButtonContent);
         this.tabDropdownButton.element.hide();
 
         if (this.parent._header && this.parent._header.dock) {
             var button = fnBind(this.parent.dock, this.parent);
             label = this._getHeaderSetting('dock');
-            this.dockButton = new HeaderButton(this, label, 'lm_dock', button);
+            this.dockButton = new HeaderButton(this, label, 'lm_dock', button, headerButtonContent);
         }
 
         /**
@@ -299,7 +304,7 @@ export default class Header extends EventEmitter {
         if (this._getHeaderSetting('popout')) {
             popout = fnBind(this._onPopoutClick, this);
             label = this._getHeaderSetting('popout');
-            new HeaderButton(this, label, 'lm_popout', popout);
+            new HeaderButton(this, label, 'lm_popout', popout, headerButtonContent);
         }
 
         /**
@@ -309,7 +314,7 @@ export default class Header extends EventEmitter {
             maximise = fnBind(this.parent.toggleMaximise, this.parent);
             maximiseLabel = this._getHeaderSetting('maximise');
             minimiseLabel = this._getHeaderSetting('minimise');
-            maximiseButton = new HeaderButton(this, maximiseLabel, 'lm_maximise', maximise);
+            maximiseButton = new HeaderButton(this, maximiseLabel, 'lm_maximise', maximise, headerButtonContent);
 
             this.parent.on('maximised', function() {
                 maximiseButton.element.attr('title', minimiseLabel);
@@ -326,7 +331,7 @@ export default class Header extends EventEmitter {
         if (this._isClosable()) {
             closeStack = fnBind(this.parent.remove, this.parent);
             label = this._getHeaderSetting('close');
-            this.closeButton = new HeaderButton(this, label, 'lm_close', closeStack);
+            this.closeButton = new HeaderButton(this, label, 'lm_close', closeStack, headerButtonContent);
         }
     }
 
@@ -336,7 +341,11 @@ export default class Header extends EventEmitter {
      * @returns {void}
      */
     _showAdditionalTabsDropdown() {
-        this.tabDropdownContainer.show();
+        if (!!this.layoutManager.config.callbacks.openTabDropdownMenu &&  // check whether openTabDropdownMenu is defined
+            !this.layoutManager.config.callbacks.openTabDropdownMenu(this)) { // check whether it returned nothing or false
+            return;
+        }
+        this.tabDropdownContainer.show(); // otherwise use the default
     }
 
     /**
@@ -345,6 +354,10 @@ export default class Header extends EventEmitter {
      * @returns {void}
      */
     _hideAdditionalTabsDropdown(e) {
+        if (!!this.layoutManager.config.callbacks.closeTabDropdownMenu &&
+            !this.layoutManager.config.callbacks.closeTabDropdownMenu(this)) {
+            return;
+        }
         this.tabDropdownContainer.hide();
     }
 

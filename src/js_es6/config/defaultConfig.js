@@ -15,7 +15,8 @@ const defaultConfig = {
         responsiveMode: 'onload', // Can be onload, always, or none.
         tabOverlapAllowance: 0, // maximum pixel overlap per tab
         reorderOnTabMenuClick: true,
-        tabControlOffset: 10
+        tabControlOffset: 10,
+        tabTemplate: null,
     },
     dimensions: {
         borderWidth: 5,
@@ -24,7 +25,7 @@ const defaultConfig = {
         minItemWidth: 10,
         headerHeight: 20,
         dragProxyWidth: 300,
-        dragProxyHeight: 200
+        dragProxyHeight: 200,
     },
     labels: {
         close: 'close',
@@ -32,8 +33,14 @@ const defaultConfig = {
         minimise: 'minimise',
         popout: 'open in new window',
         popin: 'pop in',
-        tabDropdown: 'additional tabs'
-    }
+        tabDropdown: 'additional tabs',
+        additionalContent: '',
+    },
+    callbacks: {
+        openTabDropdownMenu: null,
+        closeTabDropdownMenu: null,
+        closeTab: null,
+    },
 }
 
 export default defaultConfig

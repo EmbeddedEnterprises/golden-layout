@@ -1,9 +1,9 @@
 
 
 export default class HeaderButton {
-    constructor(header, label, cssClass, action) {
+    constructor(header, label, cssClass, action, additionalContent) {
         this._header = header;
-        this.element = $('<li class="' + cssClass + '" title="' + label + '"></li>');
+        this.element = $('<li class="' + cssClass + '" title="' + label + '">' + additionalContent + '</li>');
         this._header.on('destroy', this._$destroy, this);
         this._action = action;
         this.element.on('click touchstart', this._action);

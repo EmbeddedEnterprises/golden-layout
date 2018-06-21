@@ -24,7 +24,9 @@ export default class Tab {
     constructor(header, contentItem) {
         this.header = header;
         this.contentItem = contentItem;
-        this.element = $(_template);
+        this._layoutManager = this.contentItem.layoutManager;
+        const actualTemplate = this._layoutManager.config.settings.tabTemplate || _template;
+        this.element = $(actualTemplate);
         this.titleElement = this.element.find('.lm_title');
         this.closeElement = this.element.find('.lm_close_tab');
         this.closeElement[contentItem.config.isClosable ? 'show' : 'hide']();
@@ -33,7 +35,8 @@ export default class Tab {
         this.setTitle(contentItem.config.title);
         this.contentItem.on('titleChanged', this.setTitle, this);
 
-        this._layoutManager = this.contentItem.layoutManager;
+        // The closed flag is required for having asynchronous callbacks to perform animations.
+        this._closed = false;
 
         if (
             this._layoutManager.config.settings.reorderEnabled === true &&
@@ -151,6 +154,10 @@ export default class Tab {
      * @returns {void}
      */
     _onTabClick(event) {
+        if (this._closed === true) {
+          // prevent any events when the tab is already closed/closing
+          return;
+        }
         // left mouse button or tap
         if (event.button === 0 || event.type === 'touchstart') {
             this.header.parent.setActiveContentItem( this.contentItem );
@@ -174,6 +181,14 @@ export default class Tab {
         event.stopPropagation();
         if (!this.header._canDestroy)
             return;
+
+        // allow the override to completely replace the default behavior,
+        // e.g. to perform an asynchronous animation
+        if (!!this._layoutManager.config.callbacks.closeTab &&
+            !this._layoutManager.config.callbacks.closeTab(this, event)) {
+          return;
+        }
+
         this.header.parent.removeChild(this.contentItem);
     }
 
@@ -187,6 +202,9 @@ export default class Tab {
      * @returns {void}
      */
     _onCloseMousedown(event) {
+        // Mark the tab as closed as soon as the user has mousedown,
+        // to prevent any other tab click actions from passing
+        this._closed = true;
         event.stopPropagation();
     }
 }
