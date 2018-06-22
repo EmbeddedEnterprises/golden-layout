@@ -1,5 +1,5 @@
 import EventEmitter from '../utils/EventEmitter'
-import { 
+import {
   ALL_EVENT
 } from '../utils/EventEmitter'
 
@@ -464,13 +464,11 @@ export default class AbstractContentItem extends EventEmitter {
     _$hide() {
         this._callOnActiveComponents('hide');
         this.element.hide();
-        this.layoutManager.updateSize();
     }
 
     _$show() {
         this._callOnActiveComponents('show');
         this.element.show();
-        this.layoutManager.updateSize();
     }
 
     _callOnActiveComponents(methodName) {

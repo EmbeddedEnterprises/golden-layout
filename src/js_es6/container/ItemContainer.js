@@ -195,8 +195,6 @@ export default class ItemContainer extends EventEmitter {
         if (width !== this.width || height !== this.height) {
             this.width = width;
             this.height = height;
-            $.zepto ? this._contentElement.width(width) : this._contentElement.outerWidth(width);
-            $.zepto ? this._contentElement.height(height) : this._contentElement.outerHeight(height);
             this.emit('resize');
         }
     }
